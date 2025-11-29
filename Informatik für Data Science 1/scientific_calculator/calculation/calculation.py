@@ -13,9 +13,9 @@ def calculate(task: str) -> str:
     task_list = split_task(task)
     task_list = adapt_first_number_if_negative(task_list)
 
-    return calculate_with_list(task_list)
+    return calculate_with_list(task_list, task)
 
-def calculate_with_list(task_list):
+def calculate_with_list(task_list, task):
     result = 0
     
     for index, element in enumerate(task_list):
@@ -31,6 +31,9 @@ def calculate_with_list(task_list):
             elif element == CHARACTER_MINUS:
                 result = result - float(task_list[index + 1])
                 index += 1
+            elif element == CHARACTER_MULTIPLY:
+                result = result * float(task_list[index + 1])
+                index += 1
         except:
             return TEXT_INVALID_SYNTAX
     if (result == 0):
@@ -45,7 +48,7 @@ def split_task(task):
         if (index == 0 and character == CHARACTER_MINUS):
             task_list.append(CHARACTER_MINUS)
             continue
-        if (character == CHARACTER_PLUS or character == CHARACTER_MINUS):
+        if (character == CHARACTER_PLUS or character == CHARACTER_MINUS or character == CHARACTER_MULTIPLY):
             task_list.append(store_element)
             task_list.append(character)
             store_element = ""
