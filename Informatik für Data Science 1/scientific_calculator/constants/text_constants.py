@@ -1,0 +1,1 @@
+TEXT_INVALID_SYNTAX = "Nicht gültige Syntax"
