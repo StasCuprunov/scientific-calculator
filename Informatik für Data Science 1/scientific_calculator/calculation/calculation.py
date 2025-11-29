@@ -41,7 +41,10 @@ def split_task(task):
     task_list = []
     store_element = ""
     
-    for character in task:
+    for index, character in enumerate(task):
+        if (index == 0 and character == CHARACTER_MINUS):
+            task_list.append(CHARACTER_MINUS)
+            continue
         if (character == CHARACTER_PLUS or character == CHARACTER_MINUS):
             task_list.append(store_element)
             task_list.append(character)
