@@ -34,6 +34,9 @@ def calculate_with_list(task_list, task):
             elif element == CHARACTER_MULTIPLY:
                 result = result * float(task_list[index + 1])
                 index += 1
+            elif element == CHARACTER_DIVISION:
+                result = result / float(task_list[index + 1])
+                index += 1
         except:
             return TEXT_INVALID_SYNTAX
     if (result == 0):
@@ -48,7 +51,7 @@ def split_task(task):
         if (index == 0 and character == CHARACTER_MINUS):
             task_list.append(CHARACTER_MINUS)
             continue
-        if (character == CHARACTER_PLUS or character == CHARACTER_MINUS or character == CHARACTER_MULTIPLY):
+        if (character == CHARACTER_PLUS or character == CHARACTER_MINUS or character == CHARACTER_MULTIPLY or character == CHARACTER_DIVISION):
             task_list.append(store_element)
             task_list.append(character)
             store_element = ""
