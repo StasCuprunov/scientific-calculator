@@ -1,25 +1,32 @@
 import sys
+
 sys.path.append("../constants")
 from character_constants import *
 from text_constants import *
+
 
 # calculation interface
 def calculate(task: str) -> str:
     if len(task) == 0:
         return ""
-        
+
     task = check_first_character(task)
 
-    task_list = split_task_line_calculation(task)
+    task_list = split_task(task)
     task_list = adapt_first_number_if_negative(task_list)
+    task_list = calculate_with_multiply_and_divide(task_list)
 
-    task_list = calculate_with_multiply_and_division(task_list)
+    if task_list == TEXT_INVALID_SYNTAX:
+        return TEXT_INVALID_SYNTAX
 
-def calculate_with_list(task_list, task):
+    return calculate_with_add_and_substract(task_list, task)
+
+
+def calculate_with_add_and_substract(task_list, task):
     result = 0
-    
+
     for index, element in enumerate(task_list):
-        if index > len(task_list) - 2:
+        if index > len(task_list) - 1:
             break
         try:
             if (index == 0):
@@ -31,94 +38,102 @@ def calculate_with_list(task_list, task):
             elif element == CHARACTER_MINUS:
                 result = result - float(task_list[index + 1])
                 index += 1
-            elif element == CHARACTER_MULTIPLY:
-                result = result * float(task_list[index + 1])
-                index += 1
-            elif element == CHARACTER_DIVISION:
-                result = result / float(task_list[index + 1])
-                index += 1
         except:
             return TEXT_INVALID_SYNTAX
     if (result == 0):
         return task
     return str(result)
-    
-def calculate_with_multiply_and_division(task_list):
-    task_list_with_multiply_and_division_calculated = []
-    
+
+
+def calculate_with_multiply_and_divide(task_list):
+    task_list_with_multiply_and_divide_calculated = []
+
     for element in task_list:
         remember_operation = ""
         store_element_before = ""
         store_element_after = ""
 
+        if is_not_multiply_or_divide_expression(element):
+            task_list_with_multiply_and_divide_calculated.append(element)
+            continue
+
         for index, character in enumerate(element):
-            
             if (index == 0):
                 store_element_before = character
                 continue
-            if character == CHARACTER_MULTIPLY and remember_operation != "":
-                result = float(store_element_before) * float(store_element_after)
-                task_list_with_multiply_and_division_calculated.append(str(result))
-                store_element_before = ""
-                store_element_after = ""
-            elif (character == CHARACTER_DIVISION) and (remember_operation != ""):
-                result = float(store_element_before) / float(store_element_after)
-                task_list_with_multiply_and_division_calculated.append(str(result))
-                store_element_before = ""
-                store_element_after = ""
-            elif character == CHARACTER_MULTIPLY or character == CHARACTER_DIVISION:
-                remember_operation = character
-            elif (index == len(element) - 1):
+            if (is_last_index(index, element)):
                 store_element_after += character
-                if (remember_operation == CHARACTER_MULTIPLY):
-                    result = float(store_element_before) * float(store_element_after)
-                    task_list_with_multiply_and_division_calculated.append(str(result))
-                elif (remember_operation == CHARACTER_DIVISION):
-                    result = float(store_element_before) / float(store_element_after)
-                    task_list_with_multiply_and_division_calculated.append(str(result))
+                if (is_multiply_operator(remember_operation)):
+                    result = multiply(store_element_before, store_element_after)
+                    if (is_error_result(result)):
+                        return result
+                    task_list_with_multiply_and_divide_calculated.append(result)
+                elif (is_divide_operator(remember_operation)):
+                    result = divide(store_element_before, store_element_after)
+                    if (is_error_result(result)):
+                        return result
+                    task_list_with_multiply_and_divide_calculated.append(result)
+            elif (is_multiply_or_division_operator(character)) and (remember_operation != ""):
+                if (is_multiply_operator(remember_operation)):
+                    result = multiply(store_element_before, store_element_after)
+                elif (is_divide_operator(remember_operation)):
+                    result = divide(store_element_before, store_element_after)
+                if (is_error_result(result)):
+                    return result
+                store_element_before = result
+                store_element_after = ""
+                remember_operation = character
+            elif is_multiply_or_division_operator(character):
+                remember_operation = character
             elif remember_operation != "":
                 store_element_after += character
             else:
                 store_element_before += character
-    print(task_list_with_multiply_and_division_calculated)
-"""for element in task_list:
-        store_element = ""
-        for index, character in enumerate(element):
-            if (index == 0):
-                store_element = element
-            if (element == CHARACTER_PLUS or element == CHARACTER_MINUS):
-                result = 0
-                if (remember_operation == CHARACTER_MULTIPLY):
-                    result = float(store_element_before) * float(store_element_after)
-                elif (remember_operation == CHARACTER_DIVISION):
-                    result = float(store_element_before) / float(store_element_after)
-                task_list_with_point_calculation.append(result)
-            
-                store_element_before = ""
-                store_element_after = ""
-                remember_operation = ""
-                task_list_with_point_calculation.append(element)
-            elif ((element == CHARACTER_MULTIPLY or element == CHARACTER_DIVISION)
-                  and remember_operation != ""):
-                if (remember_operation == CHARACTER_MULTIPLY):
-                    store_element_before = str(float(store_element_before) * float(store_element_after))
-                elif remember_operation == CHARACTER_DIVISION:
-                    store_element_before = str(float(store_element_before) / float(store_element_after))
-                store_element_after = ""
-                remember_operation = element
-            elif (element == CHARACTER_MULTIPLY or element == CHARACTER_DIVISION):
-                remember_operation = element
-        
-            if (remember_operation == ""):
-                store_element_before += element
-            else:
-                store_element_after += element
-        """
+    return task_list_with_multiply_and_divide_calculated
 
-def split_task_line_calculation(task):
+def is_multiply_or_division_operator(character):
+    return character == CHARACTER_MULTIPLY or character == CHARACTER_DIVISION
+
+def is_multiply_operator(character):
+    return character == CHARACTER_MULTIPLY
+
+def is_divide_operator(character):
+    return character == CHARACTER_DIVISION
+
+def is_error_result(result):
+    return result == TEXT_INVALID_SYNTAX
+
+def is_not_multiply_or_divide_expression(element):
+    return element == CHARACTER_PLUS or element == CHARACTER_MINUS or (
+                element.find(CHARACTER_MULTIPLY) == -1 and element.find(CHARACTER_DIVISION) == -1)
+
+
+def is_last_index(index, element):
+    return index == len(element) - 1
+
+
+def multiply(element_one, element_two):
+    result = ""
+    try:
+        result = float(element_one) * float(element_two)
+    except:
+        return TEXT_INVALID_SYNTAX
+    return str(result)
+
+
+def divide(element_one, element_two):
+    result = ""
+    try:
+        result = float(element_one) / float(element_two)
+    except:
+        return TEXT_INVALID_SYNTAX
+    return str(result)
+
+
+def split_task(task):
     task_list = []
     store_element = ""
-    
+
     for index, character in enumerate(task):
         if (index == 0 and character == CHARACTER_MINUS):
             task_list.append(CHARACTER_MINUS)
@@ -134,12 +149,14 @@ def split_task_line_calculation(task):
         task_list.append(store_element)
     return task_list
 
+
 def adapt_first_number_if_negative(task_list):
     if len(task_list) > 1:
         if task_list[0] == CHARACTER_MINUS:
             task_list[1] = CHARACTER_MINUS + task_list[1]
             del task_list[0]
     return task_list
+
 
 def check_first_character(task):
     first_character = task[0]
