@@ -5,8 +5,8 @@ from character_constants import *
 from text_constants import *
 
 
-# calculation interface
 def calculate(task: str) -> str:
+    """This function is the interface for calculating expressions."""
     if len(task) == 0:
         return ""
 
