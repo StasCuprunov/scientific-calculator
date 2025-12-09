@@ -1,1 +1,5 @@
 TEXT_INVALID_SYNTAX = "Nicht gültige Syntax"
+TEXT_CONSTANTS = "Konstanten"
+TEXT_STORE_VARIABLE = "Speichern x"
+TEXT_USE_VARIABLE = "Benutzen x"
+APPLICATION_NAME = "Taschenrechner"

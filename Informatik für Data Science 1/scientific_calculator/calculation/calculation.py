@@ -1,7 +1,6 @@
 import sys
 
 sys.path.append("../constants")
-from character_constants import *
 from text_constants import *
 
 def calculate(task: str) -> str:

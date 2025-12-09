@@ -7,6 +7,7 @@ from configuration_constants import *
 
 
 def get_constants_for_calculation():
+    """Get math constants from json file."""
     with open(os.path.join("constants", "constants.json"), encoding="utf-8") as json_file:
         constants_from_json = json.load(json_file)
         constants_for_calculation = constants_from_json["constants"]
